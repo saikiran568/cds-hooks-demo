@@ -1,14 +1,49 @@
 const express = require('express');
-const app = express();
 const cors = require('cors');
-app.use(cors());
+const fetch = require('node-fetch');
 
+const app = express();
+
+app.use(cors());
 app.use(express.json());
 
-// CDS Hooks endpoint
-app.post('/cds-services/patient-view', (req, res) => {
-    const patient = req.body.prefetch?.patient;
-    const name = patient?.name?.[0]?.given?.[0] || "Patient";
+/**
+ * 🔹 CDS Hooks Discovery Endpoint
+ */
+app.get('/cds-services', (req, res) => {
+    res.json({
+        services: [
+            {
+                id: "patient-view",
+                hook: "patient-view",
+                title: "Patient Greeting Service",
+                description: "Returns greeting message with patient name"
+            }
+        ]
+    });
+});
+
+/**
+ * 🔹 CDS Hooks Main Logic (patient-view)
+ */
+app.post('/cds-services/patient-view', async (req, res) => {
+    let name = "Patient";
+
+    try {
+        const patientId = req.body.context?.patientId;
+        const fhirServer = req.body.fhirServer;
+
+        console.log("Incoming request:", req.body);
+
+        if (patientId && fhirServer) {
+            const response = await fetch(`${fhirServer}/Patient/${patientId}`);
+            const data = await response.json();
+
+            name = data?.name?.[0]?.given?.[0] || "Patient";
+        }
+    } catch (error) {
+        console.log("Error fetching patient:", error);
+    }
 
     res.json({
         cards: [
@@ -23,24 +58,16 @@ app.post('/cds-services/patient-view', (req, res) => {
     });
 });
 
-// Discovery endpoint (IMPORTANT for sandbox)
-app.get('/cds-services', (req, res) => {
-    res.json({
-        services: [
-            {
-                id: "patient-view",
-                hook: "patient-view",
-                title: "Patient Greeting Service"
-            }
-        ]
-    });
-});
-
-// Health check
+/**
+ * 🔹 Health Check
+ */
 app.get('/', (req, res) => {
     res.send("CDS Service Running");
 });
 
+/**
+ * 🔹 Start Server
+ */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
