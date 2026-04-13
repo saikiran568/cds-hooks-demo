@@ -31,7 +31,7 @@ app.post('/cds-services/patient-view', async (req, res) => {
 
     try {
         const patientId = req.body.context?.patientId;
-        const fhirServer = req.body.fhirServer;
+        const fhirServer = req.body?.fhirServer || "https://launch.smarthealthit.org/v/r2/fhir";
 
         console.log("Incoming request:", req.body);
 
