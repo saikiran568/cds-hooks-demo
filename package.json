@@ -3,10 +3,10 @@
   "name": "cds-hooks-demo",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/index.js",
+  "main": "src/services/server.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "start": "node src/services/server.js",
+    "dev": "nodemon src/services/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
