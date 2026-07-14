@@ -1,4 +1,4 @@
-cat > server.js << 'EOF'
+
 // server.js
 //
 // Minimal CDS Hooks service:
